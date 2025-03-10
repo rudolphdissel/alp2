@@ -41,7 +41,7 @@
           this.$router.push({
             path: '/quiz',
             query: { 
-              quizsetId: unit.quizSets[0].quizsetId,
+              unitId: unit.unit_id,
               quizName: quizPrefix
             }
           });

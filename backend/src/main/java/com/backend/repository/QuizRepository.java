@@ -15,11 +15,20 @@ public interface QuizRepository extends JpaRepository<Quiz, Long> {
     @Query(value = """
         SELECT q.* FROM quiz q
         JOIN quizset qs ON q.quizset_id = qs.quizset_id
-        WHERE qs.quiz_name LIKE CONCAT(:quizPrefix, '%')
+        WHERE qs.unit_id = :unitId
         AND qs.quiz_diff = :difficulty
         """, nativeQuery = true)
-    List<Quiz> findQuizzesByQuizNamePrefixAndDifficulty(
-        @Param("quizPrefix") String quizPrefix,
+    List<Quiz> findQuizzesByUnitIdAndDifficulty(
+        @Param("unitId") Long unitId,
         @Param("difficulty") Integer difficulty
     );
+
+    @Query(value = """
+        SELECT qs.quiz_diff, COUNT(DISTINCT qs.quizset_id) 
+        FROM quizset qs 
+        WHERE qs.unit_id = :unitId
+        GROUP BY qs.quiz_diff 
+        ORDER BY qs.quiz_diff
+        """, nativeQuery = true)
+    List<Object[]> findQuizSetCountsByDifficulty(@Param("unitId") Long unitId);
 } 

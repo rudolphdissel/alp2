@@ -1,9 +1,7 @@
 package com.backend.service;
 
 import com.backend.model.StudentDiff;
-import com.backend.model.StudentDiffId;
 import com.backend.repository.StudentDiffRepository;
-import com.backend.repository.QuizRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,54 +17,54 @@ public class StudentDiffService {
     @Autowired
     private StudentDiffRepository studentDiffRepository;
 
-    @Autowired
-    private QuizRepository quizRepository;
+    @Transactional(readOnly = true)
+    public int getStudentDiff(Long studentId, Long unitId) {
+        StudentDiff studentDiff = studentDiffRepository.findByStudentIdAndUnitId(studentId, unitId);
+        return studentDiff != null ? studentDiff.getSetDiff() : 3; // 기본값 3
+    }
 
     @Transactional
-    public void incrementScore(Long studentId, Long quizsetId) {
-        StudentDiffId id = new StudentDiffId(studentId, quizsetId);
-        StudentDiff studentDiff = studentDiffRepository.findById(id)
-            .orElseGet(() -> {
-                StudentDiff newDiff = new StudentDiff();
-                newDiff.setId(id);
-                newDiff.setScore(0);
-                return newDiff;
-            });
-        
+    public void updateStudentDiff(Long studentId, Long unitId, int newDiff) {
+        StudentDiff studentDiff = studentDiffRepository.findByStudentIdAndUnitId(studentId, unitId);
+        if (studentDiff == null) {
+            studentDiff = new StudentDiff();
+            studentDiff.setStudentId(studentId);
+            studentDiff.setUnitId(unitId);
+            studentDiff.setScore(0);
+        }
+        studentDiff.setSetDiff(newDiff);
+        studentDiffRepository.save(studentDiff);
+    }
+
+    @Transactional
+    public void incrementScore(Long studentId, Long unitId) {
+        StudentDiff studentDiff = studentDiffRepository.findByStudentIdAndUnitId(studentId, unitId);
+        if (studentDiff == null) {
+            studentDiff = new StudentDiff();
+            studentDiff.setStudentId(studentId);
+            studentDiff.setUnitId(unitId);
+            studentDiff.setScore(0);
+        }
         studentDiff.setScore(studentDiff.getScore() + 1);
         studentDiffRepository.save(studentDiff);
     }
 
     @Transactional(readOnly = true)
-    public int getScore(Long studentId, Long quizsetId) {
-        StudentDiffId id = new StudentDiffId(studentId, quizsetId);
-        return studentDiffRepository.findById(id)
-            .map(StudentDiff::getScore)
-            .orElse(0);
+    public int getScore(Long studentId, Long unitId) {
+        StudentDiff studentDiff = studentDiffRepository.findByStudentIdAndUnitId(studentId, unitId);
+        return studentDiff != null ? studentDiff.getScore() : 0;
     }
 
     @Transactional
-    public void initializeScore(Long studentId, Long quizsetId) {
-        StudentDiffId id = new StudentDiffId(studentId, quizsetId);
-        if (!studentDiffRepository.existsById(id)) {
-            StudentDiff newDiff = new StudentDiff();
-            newDiff.setId(id);
-            newDiff.setScore(0);
-            studentDiffRepository.save(newDiff);
+    public void resetScore(Long studentId, Long unitId) {
+        StudentDiff studentDiff = studentDiffRepository.findByStudentIdAndUnitId(studentId, unitId);
+        if (studentDiff == null) {
+            studentDiff = new StudentDiff();
+            studentDiff.setStudentId(studentId);
+            studentDiff.setUnitId(unitId);
+            studentDiff.setSetDiff(3); // 기본 난이도 3
         }
-    }
-
-    @Transactional
-    public void resetScore(Long studentId, Long quizsetId) {
-        StudentDiffId id = new StudentDiffId(studentId, quizsetId);
-        StudentDiff studentDiff = studentDiffRepository.findById(id)
-            .orElseGet(() -> {
-                StudentDiff newDiff = new StudentDiff();
-                newDiff.setId(id);
-                newDiff.setSet_diff(3); // 처음 시도할 때만 난이도 3으로 설정
-                return newDiff;
-            });
-        studentDiff.setScore(0); // 점수만 초기화
+        studentDiff.setScore(0);
         studentDiffRepository.save(studentDiff);
     }
 
@@ -109,26 +107,5 @@ public class StudentDiffService {
             scoreMap.put("percentage", percentage);
             return scoreMap;
         }).collect(Collectors.toList());
-    }
-
-    @Transactional(readOnly = true)
-    public int getStudentDiff(Long studentId, Long quizsetId) {
-        StudentDiffId id = new StudentDiffId(studentId, quizsetId);
-        return studentDiffRepository.findById(id)
-            .map(StudentDiff::getSet_diff)
-            .orElse(3); // 기본값 3
-    }
-
-    @Transactional
-    public void updateStudentDiff(Long studentId, Long quizsetId, int newDiff) {
-        StudentDiffId id = new StudentDiffId(studentId, quizsetId);
-        StudentDiff studentDiff = studentDiffRepository.findById(id)
-            .orElseGet(() -> {
-                StudentDiff newStudentDiff = new StudentDiff();
-                newStudentDiff.setId(id);
-                return newStudentDiff;
-            });
-        studentDiff.setSet_diff(newDiff);
-        studentDiffRepository.save(studentDiff);
     }
 } 

@@ -1,25 +1,15 @@
 package com.backend.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
 
 import java.io.Serializable;
 
-@Embeddable
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class StudentDiffId implements Serializable {
-    private static final long serialVersionUID = 1L;
-
-    @Column(name = "student_id")
-    private Long student_id;
-
-    @Column(name = "quizset_id")
-    private Long quizset_id;
+    private Long studentId;
+    private Long unitId;
 } 

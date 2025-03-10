@@ -1,26 +1,25 @@
 package com.backend.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.EmbeddedId;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import lombok.Data;
 
+@Data
 @Entity
-@Getter
-@Setter
-@NoArgsConstructor
 @Table(name = "student_diff")
+@IdClass(StudentDiffId.class)
 public class StudentDiff {
-    @EmbeddedId
-    private StudentDiffId id;
+    @Id
+    @Column(name = "student_id")
+    private Long studentId;
 
-    @Column(name = "set_diff")
-    private Integer set_diff;
+    @Id
+    @Column(name = "unit_id")
+    private Long unitId;
 
     @Column(name = "score")
-    private Integer score = 0;
+    private Integer score;
+
+    @Column(name = "set_diff")
+    private Integer setDiff;
 }
 

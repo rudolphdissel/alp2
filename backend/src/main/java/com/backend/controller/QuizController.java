@@ -10,30 +10,35 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/quiz")
+@RequestMapping("/api/quizzes")
 @CrossOrigin(origins = "http://localhost:5173")
 public class QuizController {
     
     @Autowired
     private QuizService quizService;
 
-    @GetMapping("/quizzes")
-    public ResponseEntity<List<Quiz>> getQuizzesByUnit(
+    @GetMapping
+    public ResponseEntity<List<Quiz>> getQuizzes(
             @RequestParam Long studentId,
-            @RequestParam Long quizsetId,
+            @RequestParam Long unitId,
             @RequestParam String quizName) {
-        List<Quiz> quizzes = quizService.getQuizzesByUnitAndDifficulty(quizName, studentId, quizsetId);
+        System.out.println("=== Quiz Controller Request ===");
+        System.out.println("Student ID: " + studentId);
+        System.out.println("Unit ID: " + unitId);
+        System.out.println("Quiz Name: " + quizName);
+        
+        List<Quiz> quizzes = quizService.getQuizzesByUnitAndDifficulty(quizName, studentId, unitId);
         return ResponseEntity.ok(quizzes);
     }
 
-    @PostMapping("/update-difficulty")
-    public ResponseEntity<?> updateDifficulty(@RequestBody Map<String, Object> request) {
-        Long studentId = Long.parseLong(request.get("student_id").toString());
-        Long quizsetId = Long.parseLong(request.get("quizset_id").toString());
-        int totalQuestions = Integer.parseInt(request.get("total_questions").toString());
-        int correctAnswers = Integer.parseInt(request.get("correct_answers").toString());
+    @PostMapping("/submit")
+    public ResponseEntity<Void> submitQuiz(@RequestBody Map<String, Object> request) {
+        Long studentId = Long.parseLong(request.get("studentId").toString());
+        Long unitId = Long.parseLong(request.get("unitId").toString());
+        int totalQuestions = Integer.parseInt(request.get("totalQuestions").toString());
+        int correctAnswers = Integer.parseInt(request.get("correctAnswers").toString());
         
-        quizService.updateDifficulty(studentId, quizsetId, totalQuestions, correctAnswers);
+        quizService.updateDifficulty(studentId, unitId, totalQuestions, correctAnswers);
         return ResponseEntity.ok().build();
     }
 } 

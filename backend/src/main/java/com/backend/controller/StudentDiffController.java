@@ -17,26 +17,22 @@ public class StudentDiffController {
     private StudentDiffService studentDiffService;
 
     @PostMapping("/increment-score")
-    public ResponseEntity<?> incrementScore(@RequestBody Map<String, Long> request) {
-        Long studentId = request.get("student_id");
-        Long quizsetId = request.get("quizset_id");
-        studentDiffService.incrementScore(studentId, quizsetId);
+    public ResponseEntity<Void> incrementScore(@RequestBody Map<String, Long> request) {
+        studentDiffService.incrementScore(request.get("student_id"), request.get("unit_id"));
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/reset-score")
-    public ResponseEntity<?> resetScore(@RequestBody Map<String, Long> request) {
-        Long studentId = request.get("student_id");
-        Long quizsetId = request.get("quizset_id");
-        studentDiffService.resetScore(studentId, quizsetId);
+    public ResponseEntity<Void> resetScore(@RequestBody Map<String, Long> request) {
+        studentDiffService.resetScore(request.get("student_id"), request.get("unit_id"));
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/score")
     public ResponseEntity<Map<String, Integer>> getScore(
-            @RequestParam("student_id") Long studentId,
-            @RequestParam("quizset_id") Long quizsetId) {
-        int score = studentDiffService.getScore(studentId, quizsetId);
+            @RequestParam Long student_id,
+            @RequestParam Long unit_id) {
+        int score = studentDiffService.getScore(student_id, unit_id);
         return ResponseEntity.ok(Map.of("score", score));
     }
 

@@ -29,27 +29,11 @@ public class QuizService {
     }
 
     @Transactional(readOnly = true)
-    public List<Quiz> getQuizzesByUnitAndDifficulty(String quizName, Long studentId, Long quizsetId) {
+    public List<Quiz> getQuizzesByUnitAndDifficulty(String quizName, Long studentId, Long unitId) {
         // 학생의 현재 난이도 가져오기
-        int currentDifficulty = studentDiffService.getStudentDiff(studentId, quizsetId);
+        int currentDifficulty = studentDiffService.getStudentDiff(studentId, unitId);
         
-        System.out.println("Quiz Name: " + quizName); // 디버깅용
-        System.out.println("Current Difficulty: " + currentDifficulty); // 디버깅용
-        
-        List<Quiz> quizzes = quizRepository.findQuizzesByQuizNamePrefixAndDifficulty(quizName, currentDifficulty);
-        
-        System.out.println("Found Quizzes: " + quizzes.size()); // 디버깅용
-        if (quizzes.isEmpty()) {
-            System.out.println("No quizzes found for difficulty level: " + currentDifficulty);
-        } else {
-            System.out.println("Sample quizzes:");
-            quizzes.stream()
-                .limit(3)
-                .forEach(quiz -> {
-                    System.out.println("- Quiz ID: " + quiz.getQuiz_id());
-                    System.out.println("  Problem: " + quiz.getProblem());
-                });
-        }
+        List<Quiz> quizzes = quizRepository.findQuizzesByUnitIdAndDifficulty(unitId, currentDifficulty);
         
         return quizzes.stream()
             .map(quiz -> {
@@ -63,9 +47,9 @@ public class QuizService {
     }
 
     @Transactional
-    public void updateDifficulty(Long studentId, Long quizsetId, int totalQuestions, int correctAnswers) {
+    public void updateDifficulty(Long studentId, Long unitId, int totalQuestions, int correctAnswers) {
         double successRate = (double) correctAnswers / totalQuestions;
-        int currentDiff = studentDiffService.getStudentDiff(studentId, quizsetId);
+        int currentDiff = studentDiffService.getStudentDiff(studentId, unitId);
         
         int newDiff = currentDiff;
         if (successRate >= 0.5) {
@@ -75,7 +59,7 @@ public class QuizService {
         }
         
         if (newDiff != currentDiff) {
-            studentDiffService.updateStudentDiff(studentId, quizsetId, newDiff);
+            studentDiffService.updateStudentDiff(studentId, unitId, newDiff);
         }
     }
 } 

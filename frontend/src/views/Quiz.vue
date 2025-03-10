@@ -44,7 +44,7 @@
           try {
             await axiosInst.post('api/student-diff/increment-score', {
               student_id: studentData.studentId,
-              quizset_id: this.$route.query.quizsetId
+              unit_id: this.$route.query.unitId
             });
             this.score++;
           } catch (error) {
@@ -63,17 +63,17 @@
             const response = await axiosInst.get('api/student-diff/score', {
               params: {
                 student_id: studentData.studentId,
-                quizset_id: this.$route.query.quizsetId
+                unit_id: this.$route.query.unitId
               }
             });
             this.score = response.data.score;
 
             // 난이도 업데이트
-            await axiosInst.post('quiz/update-difficulty', {
-              student_id: studentData.studentId,
-              quizset_id: this.$route.query.quizsetId,
-              total_questions: this.quizzes.length,
-              correct_answers: this.score
+            await axiosInst.post('api/quizzes/submit', {
+              studentId: studentData.studentId,
+              unitId: this.$route.query.unitId,
+              totalQuestions: this.quizzes.length,
+              correctAnswers: this.score
             });
           } catch (error) {
             console.error('최종 점수 조회 실패:', error);
@@ -83,21 +83,20 @@
     },
     async created() {
       try {
-        const quizsetId = this.$route.query.quizsetId;
-        const unitName = this.$route.query.unitName;
+        const unitId = this.$route.query.unitId;
         const studentData = JSON.parse(localStorage.getItem('student'));
         
         // 점수 초기화
         await axiosInst.post('api/student-diff/reset-score', {
           student_id: studentData.studentId,
-          quizset_id: quizsetId
+          unit_id: unitId
         });
 
         // 현재 난이도에 맞는 퀴즈 가져오기
-        const response = await axiosInst.get(`/quiz/quizzes`, {
+        const response = await axiosInst.get(`/api/quizzes`, {
           params: {
             studentId: studentData.studentId,
-            quizsetId: quizsetId,
+            unitId: unitId,
             quizName: this.$route.query.quizName
           }
         });
